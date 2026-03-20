@@ -1,0 +1,32 @@
+DIRECTOR = (abrirMuseo -> cerrarMuseo -> DIRECTOR).
+
+CONTROL = (abrirMuseo -> ABRIRMUSEO),
+ABRIRMUSEO = (abrirEast -> abrirWest -> CERRARMUSEO
+			| abrirWest -> abrirEast -> CERRARMUSEO),
+CERRARMUSEO = (cerrarMuseo -> cerrarEast -> cerrarWest -> CONTROL).
+
+// Sin contador:
+//EAST = (abrirEast -> cerrarEast -> EAST).
+
+//WEST = (abrirWest -> cerrarWest -> WEST).
+
+//||MUSEO = (DIRECTOR || CONTROL || EAST || WEST).
+
+// Con contador:
+EAST = (abrirEast -> EASTABIERTO),
+EASTABIERTO = (cerrarEast -> EAST
+			| ingreso -> EASTABIERTO).
+
+WEST = (abrirWest -> WESTABIERTO),
+WESTABIERTO = (cerrarWest -> WEST
+			| salida -> WESTABIERTO).
+
+const MAX = 2
+range P = 0..MAX
+CONTADOR = CONTADOR[0],
+CONTADOR[p:P] = (when (p < MAX) ingreso -> CONTADOR[p+1]
+				| when (0 < p)  salida -> CONTADOR[p-1]
+				| when (p == 0) cerrarWest -> CONTADOR[p]).
+
+||MUSEO = (DIRECTOR || CONTROL || EAST || WEST || CONTADOR).
+

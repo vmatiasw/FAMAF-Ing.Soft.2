@@ -1,0 +1,28 @@
+CINTA = (tAenCinta -> tAextraccion1 -> CINTA
+		| tBenCinta -> tBextraccion1 -> CINTA
+		| tCenCinta -> tCextraccion1 -> CINTA
+		| tDenCinta -> tDextraccion1 -> CINTA).
+
+BRAZO1 = (tAextraccion1 -> tAenPrensa -> BRAZO1
+		| tBextraccion1 -> tBenTaladro -> BRAZO1
+		| tCextraccion1 -> tCenPrensa -> BRAZO1
+		| tCextraccion2 -> tCenTaladro -> BRAZO1
+		| tDextraccion1 -> tDenTaladro -> BRAZO1
+		| tDextraccion2 -> tDenPrensa -> BRAZO1).
+
+PRENSA = (tAenPrensa -> prensado -> tAextraccion3 -> PRENSA
+		| tCenPrensa -> prensado -> tCextraccion2 -> PRENSA
+		| tDenPrensa -> prensado -> tDextraccion3 -> PRENSA).
+
+TALADRO = (tBenTaladro -> taladrado -> tBextraccion3 -> TALADRO
+		| tCenTaladro -> taladrado -> tCextraccion3 -> TALADRO
+		| tDenTaladro -> taladrado -> tDextraccion2 -> TALADRO).
+
+BRAZO3 = (tAextraccion3 -> enSalida -> BRAZO3
+		| tBextraccion3 -> enSalida -> BRAZO3
+		| tCextraccion3 -> enSalida -> BRAZO3
+		| tDextraccion3 -> enSalida -> BRAZO3).
+
+SALIDA = (enSalida -> SALIDA).
+
+||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO3 || SALIDA).

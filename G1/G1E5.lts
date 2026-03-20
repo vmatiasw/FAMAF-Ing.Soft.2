@@ -1,0 +1,11 @@
+BIESTABLE = ( trigger -> s1 -> trigger -> s0 -> BIESTABLE).
+
+// traza buscada y conseguida:
+// trigger
+// s1
+// trigger
+// s0
+// trigger
+// s1
+// trigger
+// s0

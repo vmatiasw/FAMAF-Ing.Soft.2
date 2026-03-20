@@ -1,0 +1,16 @@
+const MAX = 108
+const MIN = 88
+range F = MIN..MAX
+
+RADIO = APAGADA,
+APAGADA = (on -> ENCENDIDA[MAX]),
+
+ENCENDIDA[f:F] = (off -> APAGADA
+				| reset -> ENCENDIDA[MAX]
+				| scan -> SCAN[f]),
+
+SCAN[f:F] = ( off -> APAGADA
+			| reset -> ENCENDIDA[MAX]
+			| when (MIN < f) dec -> SCAN[f-1]
+//			| when (MIN == f) dec -> SCAN[MAX]
+			| estacion -> ENCENDIDA[f]).

@@ -1,0 +1,9 @@
+range P = 0..30
+
+MAQUINA = MAQUINA[0],
+MAQUINA[p:P] = (when (p < 15) mas5c -> MAQUINA[p+5]
+			| when (p < 15) mas10c -> MAQUINA[p+10]
+			| when (p < 15) mas20c -> MAQUINA[p+20]
+			| when (15 == p) producto -> MAQUINA[0]
+			| when (15 < p) menos5c -> MAQUINA[p-5]
+			| when (20 < p) menos10c -> MAQUINA[p-10]).

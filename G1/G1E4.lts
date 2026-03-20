@@ -1,0 +1,14 @@
+const N = 2
+range R = 0..N
+VARIABLE = VARIABLE[0],
+VARIABLE[i:R] = (read[i] -> VARIABLE[i]
+				| write[j:R] -> VARIABLE[j]).
+
+// me base en una slide de F1 o F2
+// traza buscada y conseguida:
+// write.2
+// read.2
+// read.2
+// write.1
+// write.0
+// read.0

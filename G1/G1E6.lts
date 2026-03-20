@@ -1,0 +1,8 @@
+range N = 0..9
+
+SENSOR = NIVEL[5],
+NIVEL[n:N] = (when (n < 9) inc -> SENIAL[n+1]
+			| when (0 < n) dec -> SENIAL[n-1]),
+SENIAL[n:N] = (when (n < 2) baja -> NIVEL[n]
+			| when (2 <= n && n <= 8) normal -> NIVEL[n]
+			| when (8 < n) alto -> NIVEL[n]).

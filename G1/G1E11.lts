@@ -1,0 +1,13 @@
+//PIPELINE = (enCinta -> extraccion1 -> enPrensa -> extraccion2 -> enSalida).
+
+CINTA = (enCinta -> extraccion1 -> CINTA).
+
+BRAZO1 = (extraccion1 -> enPrensa -> BRAZO1).
+
+PRENSA = (enPrensa -> prensado -> extraccion2 -> PRENSA).
+
+BRAZO2 = (extraccion2 -> enSalida -> BRAZO2).
+
+SALIDA = (enSalida -> SALIDA).
+
+||CELULA = (CINTA || BRAZO1 || PRENSA || BRAZO2 || SALIDA).
