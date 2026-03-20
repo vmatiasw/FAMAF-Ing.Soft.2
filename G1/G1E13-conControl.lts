@@ -1,3 +1,19 @@
+CONTROL = LIBRE,
+LIBRE = (
+    tCextraccion1 -> PRENSA_C
+  | tDextraccion1 -> TALADRO_D
+  | tAextraccion1 -> LIBRE
+  | tBextraccion1 -> LIBRE
+  | tCextraccion2 -> LIBRE
+  | tDextraccion2 -> LIBRE
+),
+PRENSA_C = (
+    prensadoC -> tCextraccion2 -> LIBRE
+),
+TALADRO_D = (
+    taladradoD -> tDextraccion2 -> LIBRE
+).
+
 CINTA = (tAenCinta -> tAextraccion1 -> CINTA
       | tBenCinta -> tBextraccion1 -> CINTA
       | tCenCinta -> tCextraccion1 -> CINTA
@@ -10,19 +26,13 @@ BRAZO1 = (tAextraccion1 -> tAenPrensa -> BRAZO1
        | tDextraccion1 -> tDenTaladro -> BRAZO1
        | tDextraccion2 -> tDenPrensa -> BRAZO1).
 
-PRENSA = (tAextraccion1 -> PRENSA
-       | tCextraccion1 -> PRENSA
-       | tDextraccion1 -> PRENSA //suboptimo
-       | tDextraccion2 -> PRENSA
-       | tAenPrensa -> prensado -> tAextraccion3 -> PRENSA
+PRENSA = (
+       tAenPrensa -> prensado -> tAextraccion3 -> PRENSA
        | tCenPrensa -> prensado -> tCextraccion2 -> PRENSA
        | tDenPrensa -> prensado -> tDextraccion3 -> PRENSA).
 
-TALADRO = (tBextraccion1 -> TALADRO
-        | tCextraccion1 -> TALADRO //suboptimo
-        | tCextraccion2 -> TALADRO
-        | tDextraccion1 -> TALADRO
-        | tBenTaladro -> taladrado -> tBextraccion3 -> TALADRO
+TALADRO = (
+        tBenTaladro -> taladrado -> tBextraccion3 -> TALADRO
         | tCenTaladro -> taladrado -> tCextraccion3 -> TALADRO
         | tDenTaladro -> taladrado -> tDextraccion2 -> TALADRO).
 
@@ -33,4 +43,4 @@ BRAZO3 = (tAextraccion3 -> enSalida -> BRAZO3
 
 SALIDA = (enSalida -> SALIDA).
 
-||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO3 || SALIDA).
+||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO3 || SALIDA || CONTROL).
