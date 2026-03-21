@@ -1,46 +1,37 @@
+const K = 2 // procesos accediendo al recurso compartido en simultaneo
+const W = 1 // escritores accediendo en simultaneo
 const N = 3 // lectores
 const M = 3 // escritores
 const NM = N + M
-const K = 2 // procesos accediendo al recurso compartido en simultaneo
-const W = 1 // escritores accediendo en simultaneo
+const M1 = M + 1
 
-range NMs = 1..NM // ids de lectores
+range NMs = 1..NM    // ids de lectores y ecritores
 range Ms = 1..M      // ids de escritores
+range Ns = M1..NM    // ids de lectores
 range Ks = 0..K      // para contar
-range Ws = 0..W      // para contar
 range Vs = 0..1      // valores posibles de escritura
 
 
 RECURSO = RECURSO[0],
-RECURSO[v:Vs] = (leer[n:NMs][v] -> RECURSO[v]
-              | soltarL[n:NMs][v] -> RECURSO[v]
-              | escribir[m:Ms][w:Vs] -> RECURSO[w]).
+RECURSO[v:Vs] = ([NMs].leer[v] -> RECURSO[v]
+              | [NMs].soltarL[v] -> RECURSO[v]
+              | [Ms].escribir[w:Vs] -> RECURSO[w]).
 
 CONTADORK = CONTADORK[0],
-CONTADORK[k:Ks] = ( when (k < K) leer[n:NMs][v:Vs] -> CONTADORK[k+1]
-                | when (k == 0) escribir[m:Ms][v:Vs] -> soltarE[n:Ms][w:Vs] -> CONTADORK[k]
-                | soltarL[n:NMs][v:Vs] -> CONTADORK[k-1]).
+CONTADORK[k:Ks] = ( when (k < K) [NMs].leer[v:Vs] -> CONTADORK[k+1]
+                | when (k == 0) [Ms].escribir[v:Vs] -> [Ms].soltarE[w:Vs] -> CONTADORK[k]
+                | [NMs].soltarL[v:Vs] -> CONTADORK[k-1]).
 
-ESCRITOR1 = ( escribir[1][v:Vs] -> soltarE[1][v] -> ESCRITOR1
-          | leer[1][v:Vs] -> soltarL[1][v] -> ESCRITOR1).
-ESCRITOR2 = ( escribir[2][v:Vs] -> soltarE[2][v] -> ESCRITOR2
-          | leer[2][v:Vs] -> soltarL[2][v] -> ESCRITOR2).
-ESCRITOR3 = ( escribir[3][v:Vs] -> soltarE[3][v] -> ESCRITOR3
-          | leer[3][v:Vs] -> soltarL[3][v] -> ESCRITOR3).
+ESCRITOR = (escribir[v:Vs] -> soltarE[v] -> ESCRITOR
+          | leer[v:Vs] -> soltarL[v] -> ESCRITOR).
 
-LECTOR4 = ( leer[4][v:Vs] -> soltarL[4][v] -> LECTOR4 ).
-LECTOR5 = ( leer[5][v:Vs] -> soltarL[5][v] -> LECTOR5 ).
-LECTOR6 = ( leer[6][v:Vs] -> soltarL[6][v] -> LECTOR6 ).
+LECTOR = ( leer[v:Vs] -> soltarL[v] -> LECTOR).
 
 ||SISTEMA = (
     RECURSO 
     || CONTADORK 
-    || LECTOR4
-    || LECTOR5
-    || LECTOR6
-    || ESCRITOR1
-    || ESCRITOR2
-    || ESCRITOR3
+    || [Ns]:LECTOR
+    || [Ms]:ESCRITOR
 ).
 
 
