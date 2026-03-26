@@ -1,0 +1,20 @@
+const MAX = 2
+range P = 0..MAX
+
+DIRECTOR = (abrirMuseo -> cerrarMuseo -> DIRECTOR).
+
+PUERTA = (abrir -> PUERTA_ABIERTA),
+PUERTA_ABIERTA = (cerrar -> PUERTA
+               | pasar -> PUERTA_ABIERTA).
+
+CONTROLADOR = (abrirMuseo -> abrir -> CONTROLADOR_ABIERTO[0]),
+CONTROLADOR_ABIERTO[n:P] = (when (n < MAX) entrar -> CONTROLADOR_ABIERTO[n+1]
+                           | when (n > 0) salir -> CONTROLADOR_ABIERTO[n-1]
+                           | cerrarMuseo -> east.cerrar -> CONTROLADOR_CERRADO[n]),
+CONTROLADOR_CERRADO[n:P] = (when (n>0) salir -> CONTROL_CERRADO[n-1]
+                    | when (n=0) west.cerrar -> CONTROLADOR[n]).
+
+||MUSEO = (DIRECTOR || CONTROLADOR || {east, west}:PUERTA)/{
+abrir/{east,west}.abrir,
+salir/east.pasar
+entrar/east.pasar}.
