@@ -1,16 +1,21 @@
-CINTA = (tAenCinta -> tAextraccion1 -> CINTA
-		| tBenCinta -> tBextraccion1 -> CINTA).
+set Ts = {tA, tB}
+const Z = 2
 
-BRAZO1 = (tAextraccion1 -> enPrensa -> BRAZO1
-		| tBextraccion1 -> enTaladro -> BRAZO1).
+CINTA = (agregar[x:Ts] -> extraer1[x] -> CINTA).
 
-PRENSA = (enPrensa -> prensado -> tAextraccion2 -> PRENSA).
+BRAZO1 = (extraer1.tA -> enPrensa -> BRAZO1
+		| extraer1.tB -> enTaladro -> BRAZO1).
 
-TALADRO = (enTaladro -> taladrado -> tBextraccion2 -> TALADRO).
+PRENSA = (enPrensa -> extraer2.tA -> PRENSA).
 
-BRAZO2 = (tAextraccion2 -> enSalida -> BRAZO2
-		| tBextraccion2 -> enSalida -> BRAZO2).
+TALADRO = (enTaladro -> extraer2.tB -> TALADRO).
 
-SALIDA = (enSalida -> SALIDA).
+BRAZO2 = (extraer2[x:Ts] -> enSalida[x] -> BRAZO2).
 
-||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO2 || SALIDA).
+SALIDA = (enSalida[x:Ts] -> SALIDA).
+
+||CELULA = ([1..Z]:CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO2 || SALIDA)/{
+agregar/[1].agregar,
+[i:2..Z].agregar/[i-1].extraer1,
+extraer1[x:Ts]/[Z].extraer1[x]
+}@{agregar, extraer1, extraer2}.
