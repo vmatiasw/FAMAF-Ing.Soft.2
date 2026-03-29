@@ -1,13 +1,18 @@
-//PIPELINE = (enCinta -> extraccion1 -> enPrensa -> extraccion2 -> enSalida).
+set Ts = {tA}
+const Z = 2
 
-CINTA = (enCinta -> extraccion1 -> CINTA).
+CINTA = (agregar[x:Ts] -> extraer1[x] -> CINTA).
 
-BRAZO1 = (extraccion1 -> enPrensa -> BRAZO1).
+BRAZO1 = (extraer1 -> enPrensa -> BRAZO1).
 
-PRENSA = (enPrensa -> prensado -> extraccion2 -> PRENSA).
+PRENSA = (enPrensa -> extraer2 -> PRENSA).
 
-BRAZO2 = (extraccion2 -> enSalida -> BRAZO2).
+BRAZO2 = (extraer2 -> enSalida -> BRAZO2).
 
 SALIDA = (enSalida -> SALIDA).
 
-||CELULA = (CINTA || BRAZO1 || PRENSA || BRAZO2 || SALIDA).
+||CELULA = ([1..Z]:CINTA || BRAZO1 || PRENSA || BRAZO2 || SALIDA)/{
+agregar/[1].agregar,
+[i:2..Z].agregar/[i-1].extraer1,
+extraer1/[Z].extraer1[Ts]
+}@{agregar, extraer1, extraer2}.
