@@ -1,36 +1,49 @@
-CINTA = (tAenCinta -> tAextraccion1 -> CINTA
-      | tBenCinta -> tBextraccion1 -> CINTA
-      | tCenCinta -> tCextraccion1 -> CINTA
-      | tDenCinta -> tDextraccion1 -> CINTA).
+set Ts = {tA, tB, tC, tD}
 
-BRAZO1 = (tAextraccion1 -> tAenPrensa -> BRAZO1
-       | tBextraccion1 -> tBenTaladro -> BRAZO1
-       | tCextraccion1 -> tCenPrensa -> BRAZO1
-       | tCextraccion2 -> tCenTaladro -> BRAZO1
-       | tDextraccion1 -> tDenTaladro -> BRAZO1
-       | tDextraccion2 -> tDenPrensa -> BRAZO1).
+CINTA = (
+    [x:Ts].enCinta -> [x].extraccion1 -> CINTA
+).
 
-PRENSA = (tAextraccion1 -> PRENSA
-       | tCextraccion1 -> PRENSA
-       | tDextraccion1 -> PRENSA //suboptimo
-       | tDextraccion2 -> PRENSA
-       | tAenPrensa -> prensado -> tAextraccion3 -> PRENSA
-       | tCenPrensa -> prensado -> tCextraccion2 -> PRENSA
-       | tDenPrensa -> prensado -> tDextraccion3 -> PRENSA).
+BRAZO1 = (
+      tA.extraccion1 -> tA.enPrensa -> BRAZO1
+    | tB.extraccion1 -> tB.enTaladro -> BRAZO1
+    | tC.extraccion1 -> tC.enPrensa -> BRAZO1
+    | tC.extraccion2 -> tC.enTaladro -> BRAZO1
+    | tD.extraccion1 -> tD.enTaladro -> BRAZO1
+    | tD.extraccion2 -> tD.enPrensa -> BRAZO1
+).
 
-TALADRO = (tBextraccion1 -> TALADRO
-        | tCextraccion1 -> TALADRO //suboptimo
-        | tCextraccion2 -> TALADRO
-        | tDextraccion1 -> TALADRO
-        | tBenTaladro -> taladrado -> tBextraccion3 -> TALADRO
-        | tCenTaladro -> taladrado -> tCextraccion3 -> TALADRO
-        | tDenTaladro -> taladrado -> tDextraccion2 -> TALADRO).
+PRENSA = (
+      tA.extraccion1 -> PRENSA
+    | tC.extraccion1 -> PRENSA
+    | tD.extraccion1 -> PRENSA
+    | tD.extraccion2 -> PRENSA
+    | tA.enPrensa -> tA.extraccion3 -> PRENSA
+    | tC.enPrensa -> tC.extraccion2 -> PRENSA
+    | tD.enPrensa -> tD.extraccion3 -> PRENSA
+).
 
-BRAZO3 = (tAextraccion3 -> enSalida -> BRAZO3
-       | tBextraccion3 -> enSalida -> BRAZO3
-       | tCextraccion3 -> enSalida -> BRAZO3
-       | tDextraccion3 -> enSalida -> BRAZO3).
+TALADRO = (
+      tB.extraccion1 -> TALADRO
+    | tC.extraccion1 -> TALADRO
+    | tC.extraccion2 -> TALADRO
+    | tD.extraccion1 -> TALADRO
+    | tB.enTaladro -> tB.extraccion3 -> TALADRO
+    | tC.enTaladro -> tC.extraccion3 -> TALADRO
+    | tD.enTaladro -> tD.extraccion2 -> TALADRO
+).
 
-SALIDA = (enSalida -> SALIDA).
+BRAZO3 = (
+    [x:Ts].extraccion3 -> [x].enSalida -> BRAZO3
+).
 
-||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO3 || SALIDA).
+SALIDA = (
+    [x:Ts].enSalida -> SALIDA
+).
+
+const Z = 2
+||CELULA = (CINTA:[1..Z] || BRAZO1 || PRENSA || TALADRO || BRAZO3 || SALIDA)/{
+enCinta/enCinta.[1],
+enCinta.[i:2..Z]/extraccion1.[i-1].,
+[x:Ts].extraccion1/[x].extraccion1.[Z]
+}.
