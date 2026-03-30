@@ -1,0 +1,34 @@
+const I = 3
+range Is = 1..I
+
+const J = 2
+range Js = 1..J
+
+const T = 3
+range Ts = 1..T
+
+FUNCION = (funcionInicia -> funcionTermina -> FUNCION).
+
+ASIENTO = 
+    ( consultar -> desocupado -> ASIENTO_DESOCUPADO),
+ASIENTO_DESOCUPADO = 
+    ( ocupar -> ASIENTO_OCUPADO
+    | noOcupar -> ASIENTO),
+ASIENTO_OCUPADO = 
+    ( consultar -> ocupado -> ASIENTO_OCUPADO
+    | funcionTermina -> ASIENTO).
+
+TERMINAL = 
+    ( [i:Is].[j:Js].consultar -> TERMINAL_CONSULTANDO[i][j]),
+TERMINAL_CONSULTANDO[i:Is][j:Js] =
+    ( [i].[j].desocupado -> {[i].[j].noOcupar, [i].[j].ocupar} -> TERMINAL
+    | [i].[j].ocupado -> TERMINAL).
+
+set Ls = {desocupado, ocupar, noOcupar, ocupado}
+
+||ASIENTOS = 
+([Is].[Js]:ASIENTO)/{  
+[Ts][i:Is].[j:Js].consultar/[i].[j].consultar}.
+
+||SISTEMA = 
+(ASIENTOS || [Ts]:TERMINAL || FUNCION).
