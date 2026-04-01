@@ -1,0 +1,18 @@
+const MAX = 4
+range MAXrge = 1..MAX
+
+set MSJset = {a, b, c, d, e}
+
+PRODUCTOR = ([MSJset].producir -> PRODUCTOR).
+
+CONSUMIDOR = ([MSJset].consumir -> CONSUMIDOR).
+
+CANAL = ([m:MSJset].producir -> [m].consumir -> CANAL).
+
+||BUFFER = [MAXrge]:CANAL/{
+[i:MAXrge][m:MSJset].producir/[i-1][m].consumir,
+[m:MSJset].producir/[1][m].producir,
+[m:MSJset].consumir/[MAX][m].consumir
+}@{[MSJset].producir, [MSJset].consumir}.
+
+||SISTEMA = (BUFFER || CONSUMIDOR || PRODUCTOR).
