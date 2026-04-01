@@ -1,0 +1,18 @@
+const N_salvajes = 3
+range Ns_salvajes = 1..N_salvajes
+
+const N_porciones = 2
+range Ns_porciones = 0..N_porciones
+
+OLLA = OLLA[0],
+OLLA[p:Ns_porciones] = ( when (p > 0) servirPorcion -> OLLA[p-1]
+                       | when (p == 0) llenarOlla -> OLLA[N_porciones]).
+
+||OLLA_COMUNITARIA = (OLLA)/{
+[Ns_salvajes].servirPorcion/servirPorcion}.
+
+COCINERO = (llenarOlla -> COCINERO).
+
+SALVAJE = (servirPorcion -> comer -> SALVAJE).
+
+||SISTEMA = (OLLA_COMUNITARIA || COCINERO || [Ns_salvajes]:SALVAJE).
