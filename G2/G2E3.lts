@@ -1,3 +1,7 @@
+// por que cuando una terminal consulta un asiento, el asiento le contasta a todas las terminales?
+// no se deberia sincronizar? las demas terminales es imporsible que puedan escuchar si no 
+//consultaron ese asiento, y si una terminal consulta un asiento, las demas ya no pueden.
+
 const I = 3
 range Is = 1..I
 
@@ -24,11 +28,12 @@ TERMINAL_CONSULTANDO[i:Is][j:Js] =
     ( [i].[j].desocupado -> {[i].[j].noOcupar, [i].[j].ocupar} -> TERMINAL
     | [i].[j].ocupado -> TERMINAL).
 
-set Ls = {desocupado, ocupar, noOcupar, ocupado}
+set Ls = {consultar, desocupado, ocupar, noOcupar, ocupado}
 
 ||ASIENTOS = 
 ([Is].[Js]:ASIENTO)/{  
-[Ts][i:Is].[j:Js].consultar/[i].[j].consultar}.
+[Ts][i:Is].[j:Js].[l:Ls]/[i].[j].[l],
+funcionTermina/[i:Is].[j:Js].funcionTermina}.
 
 ||SISTEMA = 
 (ASIENTOS || [Ts]:TERMINAL || FUNCION).
