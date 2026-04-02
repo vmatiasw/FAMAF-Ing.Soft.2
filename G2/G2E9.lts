@@ -1,28 +1,29 @@
-// se me ocurre modelar esto:
-// cada libro con su contador de stock. la EDITORIAL puede agregar libros.
-// que el cliente tenga o no fondos es no determinista
-// el proceso de compra es: 1) cliente C compra libro L. 2) si C tiene fondos entonces
-// atomicamente vemos si esta disponible L y si si se realiza la compra.
-
-// aunque si el proceso de compra para el cliente no es bloqueante (pudiendo comprar mas de 1 
-// libro a la vez) entonces si deberiamos modelarlo como un contador con plata. y entonces los
-// los libros deberian tener precio?
-
-// precio de cualquier libro = 1 unidad monetaria.
-
-
 set S_clientes = {c1, c2}
-set S_libros = {l1, l2, l3}
+set S_libros = {l1, l2}
+set S_IDCompra = {id1, id2, id3}
 
-CLIENTE = ( [S_libros]compra -> CLIENTE
-          | [S_libros]sinFondos).
+FLUJO_COMPRA = ([c:S_clientes][l:S_libros].peticionCompra -> FC_FONDOS[c][l]),
+FC_FONDOS[c:S_clientes][l:S_libros] = ( [c].cobrar -> FC_LIBRO[c][l]
+                                      | [c].sinFondos -> FLUJO_COMPRA),
+FC_LIBRO[c:S_clientes][l:S_libros] = ( [l].comprar -> [c][l].compraRealizada -> FLUJO_COMPRA
+                                     | [l].noDisponible -> [c].reembolsar -> FLUJO_COMPRA).
+||EMPRESA = [S_IDCompra]:FLUJO_COMPRA.
 
-EMPRESA = ( [S_clientes][S_libros]compra -> EMPRESA
-          | [S_clientes][S_libros]compra -> EMPRESA).
 
+CONTADOR(INIC=0,MAX=10) = CONTADOR[INIC],
+CONTADOR[i:0..MAX] = ( when (i>0) dec -> CONTADOR[i-1]
+                     | when (i<MAX) inc -> CONTADOR[i+1]
+                     | when (i==0) en0 -> CONTADOR[i]).
 
-TARJETA = ( [c:S_clientes][S_libros]compra -> c.sinFondos -> TARJETA
-          | [c:S_clientes][S_libros]compra -> c.conFondos -> TARJETA).
+||BANCO = [S_clientes]:CONTADOR(3,4)/{
+[S_IDCompra][c:S_clientes].cobrar/[c].dec,
+[S_IDCompra][c:S_clientes].sinFondos/[c].en0,
+[S_IDCompra][c:S_clientes].reembolsar/[c].inc}.
 
-EDITORIAL = ( [S_clientes][l:S_libros]compra -> l.noDisponible -> EDITORIAL
-            | [S_clientes][l:S_libros]compra -> l.disponible -> EDITORIAL).
+||EDITORIAL = [S_libros]:CONTADOR(2,3)/{
+[S_IDCompra][l:S_libros].comprar/[l].dec,
+[S_IDCompra][l:S_libros].noDisponible/[l].en0,
+[l:S_libros].stockear1/[l].inc
+}.
+
+||SISTEMA = (EMPRESA || BANCO || EDITORIAL).
