@@ -1,0 +1,3 @@
+CONTADOR(INIC=0,MAX=10) = CONTADOR[INIC],
+CONTADOR[i:0..MAX] = ( when (i>0) dec -> CONTADOR[i-1]
+                     | when (i<MAX) inc -> CONTADOR[i+1]).
