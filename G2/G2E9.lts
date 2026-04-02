@@ -1,0 +1,28 @@
+// se me ocurre modelar esto:
+// cada libro con su contador de stock. la EDITORIAL puede agregar libros.
+// que el cliente tenga o no fondos es no determinista
+// el proceso de compra es: 1) cliente C compra libro L. 2) si C tiene fondos entonces
+// atomicamente vemos si esta disponible L y si si se realiza la compra.
+
+// aunque si el proceso de compra para el cliente no es bloqueante (pudiendo comprar mas de 1 
+// libro a la vez) entonces si deberiamos modelarlo como un contador con plata. y entonces los
+// los libros deberian tener precio?
+
+// precio de cualquier libro = 1 unidad monetaria.
+
+
+set S_clientes = {c1, c2}
+set S_libros = {l1, l2, l3}
+
+CLIENTE = ( [S_libros]compra -> CLIENTE
+          | [S_libros]sinFondos).
+
+EMPRESA = ( [S_clientes][S_libros]compra -> EMPRESA
+          | [S_clientes][S_libros]compra -> EMPRESA).
+
+
+TARJETA = ( [c:S_clientes][S_libros]compra -> c.sinFondos -> TARJETA
+          | [c:S_clientes][S_libros]compra -> c.conFondos -> TARJETA).
+
+EDITORIAL = ( [S_clientes][l:S_libros]compra -> l.noDisponible -> EDITORIAL
+            | [S_clientes][l:S_libros]compra -> l.disponible -> EDITORIAL).
