@@ -1,0 +1,12 @@
+set S = {a, b}
+const MIN = 1
+const MAX = 2
+range R = MIN..MAX
+
+CANAL = ([d:S].get -> [d].put -> CANAL).
+
+||BUFFER = [R]:CANAL/{
+[i:R][d:S].get/[i-1][d].put,
+[d:S].get/[MIN][d].get,
+[d:S].put/[MAX][d].put
+}@{[S].get, [S].put}.
