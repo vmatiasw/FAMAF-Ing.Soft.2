@@ -1,12 +1,12 @@
 set S = {a, b}
-const MIN = 1
-const MAX = 2
-range R = MIN..MAX
+const SIZE = 2
+range R = 1..SIZE
 
 CANAL = ([d:S].get -> [d].put -> CANAL).
+//        | [d:S].drop -> CANAL). // para overflow
 
 ||BUFFER = [R]:CANAL/{
 [i:R][d:S].get/[i-1][d].put,
-[d:S].get/[MIN][d].get,
-[d:S].put/[MAX][d].put
+[d:S].get/[1][d].get,
+[d:S].put/[SIZE][d].put
 }@{[S].get, [S].put}.
