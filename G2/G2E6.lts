@@ -7,6 +7,10 @@ range R_ack = 0..C_nfts
 range R_fe = 0..C_nfts
 range R_seq = 0..C_nfts
 
+// PRODUCTOR
+PRODUCTOR = ([d:S_datos].producir -> [d].fnl -> PRODUCTOR).
+
+// TRANSMISOR
 TRANSMISOR = TRANSMISOR[0],
 TRANSMISOR[nfts:R_nfts] = ([d:S_datos].fnl -> TRANSMISOR[nfts][d]),
 TRANSMISOR[nfts:R_nfts][d:S_datos] = ([nfts][d].tpl -> start_timer -> TRANS_2[nfts][d]),
@@ -14,55 +18,15 @@ TRANS_2[nfts:R_nfts][d:S_datos] = ( timeout -> TRANSMISOR[nfts][d]
                                   | [ack:R_ack].fpl -> TRANS_3[nfts][d][ack]),
 TRANS_3[nfts:R_nfts][d:S_datos][ack:R_ack] = ( when (ack == nfts) ack_eq_nfts -> TRANSMISOR[(nfts+1)%(C_nfts+1)]
                                              | when (ack != nfts) ack_neq_nfts -> TRANSMISOR[nfts][d]).
-
-// Casos
-// 1. envie pero no llegue
-// 2. envie y llegue pero no llegue el ack
-// 3. envie, llege y devuelva ack
-
-// CANALes Deterministas
-CANAL_ntfs = ( [nfts:R_nfts][d:S_datos].tpl -> ( [nfts][d].tpl.llega -> CANAL_ntfs
-                                               | [nfts][d].tpl.noLlega -> CANAL_ntfs)).
-CANAL_ack = ( [ack:R_ack].tpl -> ( [ack].tpl.llega -> [ack].fpl -> CANAL_ack
-                                 | [ack].tpl.noLlega -> CANAL_ack)).
-// CANALes no Deterministas
-//CANAL_ntfs = ( [nfts:R_nfts][d:S_datos].tpl -> [nfts][d].tpl.llega -> CANAL_ntfs
-//             | [nfts:R_nfts][d:S_datos].tpl -> [nfts][d].tpl.noLlega -> CANAL_ntfs).
-//CANAL_ack = ( [ack:R_ack].tpl -> [ack].tpl.llega -> [ack].fpl -> CANAL_ack
-//            | [ack:R_ack].tpl -> [ack].tpl.noLlega -> CANAL_ack).
+// CANALes
+CANAL_ntfs = ( [nfts:R_nfts][d:S_datos].tpl -> {[nfts][d].fpl, noLLega} -> CANAL_ntfs) \ {noLLega}.
+CANAL_ack = ( [ack:R_ack].tpl -> {[ack].fpl, noLLega} -> CANAL_ack) \ {noLLega}.
 
 // RECEPTOR
 RECEPTOR = RECEPTOR[0],
 RECEPTOR[fe:R_fe] = ([seq:R_seq][d:S_datos].fpl -> RECEPTOR[fe][seq][d]),
 RECEPTOR[fe:R_fe][seq:R_seq][d:S_datos] = ( when (seq == fe) [d].tnl -> RECE_3[(fe+1)%(C_fe+1)]
                                           | when (seq != fe) seq_neq_fe -> RECE_3[fe]),
-RECE_3[fe:R_fe] = ([(fe+C_fe)%(C_fe+1)].tpl -> RECEPTOR[fe]).//+{[C_fe].tpl}.
+RECE_3[fe:R_fe] = ([(fe+C_fe)%(C_fe+1)].tpl -> RECEPTOR[fe]).
 
-// BUFFERs simples
-PRODUCTOR = ([d:S_datos].producir -> [d].fnl -> PRODUCTOR).
-
-BUFFER_RECE = ([seq:R_seq][d:S_datos].tpl.llega -> [seq][d].fpl -> BUFFER_RECE).
-
-// BUFFERs generales
-
-// BUFFER PRODUCTOR
-//const C_prod = 1
-//range R_prod = 1..C_prod
-//CANAL_PROD = ([d:S_datos].producir -> [d].fnl -> CANAL_PROD).
-//||PRODUCTOR = [R_prod]:CANAL_PROD/{
-//[i:R_prod][d:S_datos].producir/[i-1][d].fnl,
-//[d:S_datos].producir/[1][d].producir,
-//[d:S_datos].fnl/[C_prod][d].fnl
-//}@{[S_datos].producir, [S_datos].fnl}.
-
-// BUFFER RECEPTOR
-//const C_rece = 1
-//range R_rece = 1..C_rece
-//CANAL_RECE = ( [seq:R_seq][d:S_datos].tpl.llega -> [seq][d].fpl -> CANAL_RECE).
-//||BUFFER_RECE = [R_rece]:CANAL_RECE/{
-//[i:R_rece][seq:R_seq][d:S_datos].tpl.llega/[i-1][seq][d].fpl,
-//[seq:R_seq][d:S_datos].tpl.llega/[1][seq][d].tpl.llega,
-//[seq:R_seq][d:S_datos].fpl/[R_rece][seq][d].fpl
-//}@{[R_seq][S_datos].tpl.llega, [R_seq][S_datos].fpl}.
-
-||SISTEMA = (PRODUCTOR || TRANSMISOR || BUFFER_RECE || RECEPTOR || CANAL_ntfs || CANAL_ack).
+||SISTEMA = (PRODUCTOR || TRANSMISOR || RECEPTOR || CANAL_ntfs || CANAL_ack).
