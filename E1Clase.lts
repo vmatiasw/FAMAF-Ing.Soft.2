@@ -1,0 +1,43 @@
+const N = 3 // number of each type of car
+range T = 0..N // type of car count
+range ID= 1..N // car identities
+CAR = (enter->exit->CAR).
+
+NOPASS1 = C[1],
+C[i:ID] = ([i].enter -> C[i%N+1]).
+
+NOPASS2 = C[1],
+C[i:ID] = ([i].exit -> C[i%N+1]).
+
+||CONVOY = ([ID]:CAR || NOPASS1 || NOPASS2).
+
+||CARS = (red:CONVOY || blue:CONVOY).
+
+BRIDGE = BRIDGE[0][0],
+BRIDGE[nr:T][nb:T] =
+   (when (nb==0)
+        red[ID].enter -> BRIDGE[nr+1][nb]
+    |red[ID].exit -> BRIDGE[nr-1][nb]
+    |when (nr==0)
+        blue[ID].enter -> BRIDGE[nr][nb+1]
+    |blue[ID].exit -> BRIDGE[nr][nb-1]
+    ).
+
+set Colors = {red, blue}
+property ONEWAY = ([c:Colors][i:ID].enter -> WAYINUSE[c][i]),
+WAYINUSE[c:Colors][i:ID] = ([c][j:ID].enter -> WAYINUSE[c][j]
+                            |[c][ID].exit -> WAYINUSE[c][i]
+                            |[c][i].exit -> ONEWAY
+                            ).
+// I.E: Me aseguro de que:
+// Si entra un auto de cierto color, entonces solo entran autos del mismo color
+// hasta que salga el ultimo que entro. Funciona porque es FIFO.
+// Si pudiesen salir fuera de orden (p.ej: uno se adelanto) entonces si habria que usar el contador.
+||SingleLaneBridge = (CARS || BRIDGE || ONEWAY).
+
+
+
+
+
+
+
