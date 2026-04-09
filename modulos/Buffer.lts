@@ -2,11 +2,10 @@ set S = {a, b}
 const SIZE = 2
 range R = 1..SIZE
 
-CANAL = ([d:S].get -> [d].put -> CANAL).
-//        | [d:S].drop -> CANAL). // para overflow
+CANAL = ([d:S].entry -> [d].out -> CANAL).
 
 ||BUFFER = [R]:CANAL/{
-[i:R][d:S].get/[i-1][d].put,
-[d:S].get/[1][d].get,
-[d:S].put/[SIZE][d].put
-}@{[S].get, [S].put}.
+[i:R][d:S].entry/[i-1][d].out,
+[d:S].entry/[1][d].entry,
+[d:S].out/[SIZE][d].out
+}@{[S].entry, [S].out}.
