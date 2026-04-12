@@ -1,0 +1,17 @@
+const N=5
+
+FORK = (get -> put -> FORK).
+
+PHIL = (sitdown -> right.get -> left.get
+        -> eat -> left.put -> right.put
+        -> arise -> PHIL).
+
+||DINERS = forall [i:0..N-1] 
+         ( phil[i]:PHIL 
+        || {phil[i].left, phil[((i-1)+N)%N].right}::FORK).
+
+BUTLER = BUTLER[0],
+BUTLER[sd:0..N] = ( when (sd < N-1) phil[0..N-1].sitdown -> BUTLER[ sd+1 ]
+                  | phil[0..N-1].arise -> BUTLER[ sd-1 ]).
+
+||DINERS_SOLUTION = (DINERS || BUTLER).
