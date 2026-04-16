@@ -27,6 +27,10 @@ MLOCK[v:Vecinos] = ( [w:Vecinos].arriar ->
         if (w==v) then MORAS
         else MLOCK[v]).
 
+// chequeamos que se turnen para buscar (no deberia suceder)
+//property ORDEN = ([v:Vecinos].buscar_moras -> [w:Vecinos].buscar_moras ->
+//        if (w!=v) then ORDEN).
+
 // chequeamos que siempre cada uno puede buscar moral en algun momento
 progress BUSCAR_MORAS[v:Vecinos] = {[v].buscar_moras}
 
@@ -34,7 +38,7 @@ progress BUSCAR_MORAS[v:Vecinos] = {[v].buscar_moras}
 progress LIBERAR_MORAS[v:Vecinos] =
     if {[v].buscar_moras} then {[v].arriar}
 
-||SISTEMA_CHECK = (SISTEMA || MORAS).
+||SISTEMA_CHECK = (SISTEMA || MORAS).// || ORDEN).
 
-||SISTEMA_EGOISTA_CHECK = (SISTEMA || MORAS)<<{[Vecinos].izar}. // produce fallo de progress
+||SISTEMA_EGOISTA_CHECK = (SISTEMA_CHECK)<<{[Vecinos].izar}. // produce fallo de progress
 
