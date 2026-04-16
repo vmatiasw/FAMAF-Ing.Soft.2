@@ -1,0 +1,12 @@
+const CAP = 10
+range R = 0..CAP
+
+CONTADOR(INIC=0,MAX=10) = CONTADOR[INIC],
+CONTADOR[i:0..MAX] = ( when (i>0) dec[i] -> CONTADOR[i-1]
+                     | when (i<MAX) inc[i] -> CONTADOR[i+1]) + {inc[R], dec[R]}.
+
+
+property PROP = ( inc[0..CAP-1] -> PROP
+              | dec[1..CAP] -> PROP) + {inc[R], dec[R]}.
+
+||SISTEMA = (PROP || CONTADOR(0,CAP)).

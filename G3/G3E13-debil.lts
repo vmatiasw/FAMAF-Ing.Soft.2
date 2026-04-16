@@ -1,0 +1,17 @@
+const CAP = 10
+
+CONTADOR(MAX=0) = C[MAX],
+C[i:0..CAP] = (
+    when (i < CAP) inc -> C[i+1]
+  | when (i > 0)   dec -> C[i-1]
+).
+
+property RANGO = P[0],
+P[i:0..CAP] = (
+    when (i < CAP) inc -> P[i+1]
+  | when (i > 0)   dec -> P[i-1]
+).
+
+||SISTEMA = (CONTADOR(0) || RANGO)/{
+enter/inc,
+exit/dec}.
