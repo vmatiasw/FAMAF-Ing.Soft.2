@@ -1,0 +1,40 @@
+set Vecinos = {v1, v2}
+
+VECINO1 = (izar -> ( v2.izada -> arriar -> VECINO1
+                   | v2.noizada -> buscar_moras -> arriar -> VECINO1)).
+
+VECINO2 = (izar -> ( v1.izada -> arriar -> VECINO2 
+                   | v1.noizada -> buscar_moras -> arriar -> VECINO2)).
+
+BANDERA = ( izar -> IZADA
+          | noizada -> BANDERA),
+IZADA = ( izada -> IZADA
+       | arriar -> BANDERA).
+
+||BANDERAS = ([Vecinos]:BANDERA)/{
+   v1.v2.izada/v2.izada,
+   v1.v2.noizada/v2.noizada,
+   v2.v1.izada/v1.izada,
+   v2.v1.noizada/v1.noizada
+}.
+
+||SISTEMA = (BANDERAS || v1:VECINO1 || v2:VECINO2).
+
+// chequeamos que nunca se encuentren buscando moras:
+property MORAS = ( [v:Vecinos].buscar_moras -> MLOCK[v]
+                 | [Vecinos].arriar -> MORAS),
+MLOCK[v:Vecinos] = ( [w:Vecinos].arriar ->
+        if (w==v) then MORAS
+        else MLOCK[v]).
+
+// chequeamos que siempre cada uno puede buscar moral en algun momento
+progress BUSCAR_MORAS[v:Vecinos] = {[v].buscar_moras}
+
+// chequeamos que siempre que uno busca moras, luego puede terminar y bajar la bandera
+progress LIBERAR_MORAS[v:Vecinos] =
+    if {[v].buscar_moras} then {[v].arriar}
+
+||SISTEMA_CHECK = (SISTEMA || MORAS).
+
+||SISTEMA_EGOISTA_CHECK = (SISTEMA || MORAS)<<{[Vecinos].izar}. // produce fallo de progress
+
