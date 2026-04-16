@@ -1,0 +1,29 @@
+range Estados = 0..8
+const EInic = 6
+
+E = E[EInic],
+E[0] = ( north_exit -> STOP
+       | east_1 -> E[1]),
+
+E[1] = ( west_0 -> E[0]
+       | south_4 -> E[4]
+       | east_2 -> E[2]),
+
+E[2] = ( west_1 -> E[1]
+       | south_5 -> E[5]),
+
+E[3] = ( east_4 -> E[4]
+       | south_6 -> E[6]),
+
+E[4] = ( north_1 -> E[1]
+       | west_3 -> E[3]),
+
+E[5] = ( north_2 -> E[2]
+       | south_8 -> E[8]),
+
+E[6] = ( north_3 -> E[3]),
+
+E[7] = ( east_8 -> E[8]),
+
+E[8] = ( west_7 -> E[7]
+       | north_5 -> E[5]).
