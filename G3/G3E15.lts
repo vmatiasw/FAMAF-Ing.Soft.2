@@ -1,0 +1,51 @@
+set Vs = {v1, v2}
+
+VECINO1 = (izar -> cederTurno -> ( v2.izada -> ( arriar -> VECINO1
+                                               | enTurno -> buscar_moras -> arriar -> VECINO1)
+                                 | v2.noizada -> buscar_moras -> arriar -> VECINO1)).
+
+VECINO2 = (izar -> cederTurno -> ( v1.izada -> ( arriar -> VECINO2
+                                               | enTurno -> buscar_moras -> arriar -> VECINO2)
+                                  | v1.noizada -> buscar_moras -> arriar -> VECINO2)).
+
+TURNO = TURNO[0],
+TURNO[i:0..1] = ( [@(Vs,i)].enTurno -> TURNO[i]
+                | [@(Vs,0)].cederTurno -> TURNO[1]
+                | [@(Vs,1)].cederTurno -> TURNO[0]).
+
+BANDERA = ( izar -> IZADA
+          | noizada -> BANDERA),
+IZADA = ( izada -> IZADA
+       | arriar -> BANDERA).
+
+||BANDERAS = ([Vs]:BANDERA)/{
+   v1.v2.izada/v2.izada,
+   v1.v2.noizada/v2.noizada,
+   v2.v1.izada/v1.izada,
+   v2.v1.noizada/v1.noizada
+}.
+
+||SISTEMA = (BANDERAS || v1:VECINO1 || v2:VECINO2 || TURNO).
+
+// chequeamos que nunca se encuentren buscando moras:
+property MORAS = ( [v:Vs].buscar_moras -> MLOCK[v]
+                 | [Vs].arriar -> MORAS),
+MLOCK[v:Vs] = ( [w:Vs].arriar ->
+        if (w==v) then MORAS
+        else MLOCK[v]).
+
+// chequeamos que se turnen para buscar (no deberia suceder)
+property ORDEN = ([v:Vecinos].buscar_moras -> [w:Vecinos].buscar_moras ->
+        if (w!=v) then ORDEN).
+
+// chequeamos que siempre cada uno puede buscar moral en algun momento
+progress BUSCAR_MORAS[v:Vs] = {[v].buscar_moras}
+
+// chequeamos que siempre que uno busca moras, luego puede terminar y bajar la bandera
+progress LIBERAR_MORAS[v:Vs] =
+    if {[v].buscar_moras} then {[v].arriar}
+
+||SISTEMA_CHECK = (SISTEMA || MORAS || ORDEN).
+
+||SISTEMA_EGOISTA_CHECK = (SISTEMA_CHECK)<<{[Vs].izar}. // produce fallo de progress
+
