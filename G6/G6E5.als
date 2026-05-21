@@ -4,8 +4,6 @@ sig Rel {
 	re: set el->el
 }
 
-fact {one Rel and all r:Rel | 3 <= #r.el}
-
 pred Reflexiva[r:Rel]{all e:r.el | e->e in r.re}
 
 pred Transitiva[r:Rel]{
@@ -33,12 +31,28 @@ pred OrdenEstricto[r:Rel]{
 	and all n:r.el | n->n not in r.re
 }
 
-pred ConMinimo[r:Rel]{some n:r.el | all m:r.el | n->m in r.re}
-
-pred ConMaximo[r:Rel]{some n:r.el | all m:r.el | m->n in r.re}
+pred ConMinimo[r:Rel]{some n:r.el | EsMinimo[r, n]}
+pred EsMinimo[r:Rel, m:Elem]{all n:r.el | m->n in r.re}
+pred ConMaximo[r:Rel]{some n:r.el | EsMaximo[r, n]}
+pred EsMaximo[r:Rel, m:Elem]{all n:r.el | n->m in r.re}
 
 assert T1 {all r: Rel | OrdenParcial[r] implies OrdenTotal[r]}
 //check T1 for 5 //falla
 
-assert T2 {all r: Rel | Antisimetrica[r] and OrdenParcial[r] implies ConMinimo[r]}
-check T2 for 3 //falla
+assert T2 {all r: Rel | OrdenParcial[r] implies ConMinimo[r]}
+//check T2 for 3 //falla
+
+assert T3 {all r: Rel | some n:r.el, m:r.el | 
+	OrdenParcial[r] and EsMinimo[r, n] and EsMaximo[r, m]
+	implies n != m}
+//check T3 for 3 //falla
+
+assert T4 {all r, t:Rel |
+	OrdenEstricto[r] and OrdenEstricto[t]
+	implies OrdenEstricto[r+t]}
+//check T4 for 2 // falla
+
+assert T5 {all r, t:Rel |
+	OrdenEstricto[r] and OrdenEstricto[t]
+	implies OrdenEstricto[r.t]}
+check T5 for 2
