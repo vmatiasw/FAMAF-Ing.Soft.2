@@ -12,6 +12,13 @@ sig LTS {
 	transiciones: set nodos->etiquetas->nodos
 }{all m:nodos | n0->m in ^(Caminos[transiciones])}
 
+fact {some disj S,T:LTS, 
+		//R: S.nodos->T.nodos, 
+		Strans, Ttrans:Nodo->Etiqueta->Nodo |
+	Strans = S.transiciones
+	and Ttrans = T.transiciones
+	and no T.nodos & S.nodos}
+
 pred Bisimulacion[S,T:LTS, R:Nodo->Nodo]{
 	Simulacion[S,T,R] and Simulacion[T,S,~R]
 }
@@ -53,49 +60,44 @@ pred BisimulacionDebil[S,T:LTS, R:Nodo->Nodo]{
 
 assert T1 {all S,T:LTS, R:Nodo->Nodo | 
 	Bisimulacion[S,T,R] implies Simulacion[S,T,R]}
-//check T1 for 4
+//check T1 for 4 but 2 LTS
 
 assert T2 {all S,T:LTS, R:Nodo->Nodo | 
 	Bisimulacion[S,T,R] implies BisimulacionDebil[S,T,R]}
-//check T2 for 4
+//check T2 for 4 but 2 LTS
 
-assert T4 {all S,T:LTS, R:Nodo->Nodo |
+assert T4 {all S,T:LTS, R:S.nodos->T.nodos |
 	Simulacion[S,T,R] implies SimulacionDebil[S,T,R]}
-//check T4 for 2
+//check T4 for 4 but 2 LTS
 
-assert T3a {all S,T:LTS, R,Rˋ:Nodo->Nodo | 
+assert T3a {all S,T:LTS, R,Rˋ:S.nodos->T.nodos | 
 	Simulacion[S,T,R] 
 	and Simulacion[S,T,Rˋ]
 	implies Simulacion[S,T,R.Rˋ] }
-check T3a for 4
+//check T3a for 4 but 2 LTS
 
-assert T3b {all S,T:LTS, R,Rˋ:Nodo->Nodo | 
+assert T3b {all S,T:LTS, R,Rˋ:S.nodos->T.nodos | 
 	SimulacionDebil[S,T,R] 
 	and SimulacionDebil[S,T,Rˋ]
 	implies SimulacionDebil[S,T,R.Rˋ] }
-//check T3b for 4
+//check T3b for 4 but 2 LTS
 
-assert T3c {all S,T:LTS, R,Rˋ:Nodo->Nodo | 
+assert T3c {all S,T:LTS, R,Rˋ:S.nodos->T.nodos | 
 	Bisimulacion[S,T,R] 
 	and Bisimulacion[S,T,Rˋ]
 	implies Bisimulacion[S,T,R.Rˋ] }
-//check T3c for 4
+//check T3c for 4 but 2 LTS
 
-assert T3d {all S,T:LTS, R,Rˋ:Nodo->Nodo | 
+assert T3d {all S,T:LTS, R,Rˋ:S.nodos->T.nodos | 
 	BisimulacionDebil[S,T,R] 
 	and BisimulacionDebil[S,T,Rˋ]
 	implies BisimulacionDebil[S,T,R.Rˋ] }
-//check T3d for 2
+//check T3d for 4 but 2 LTS
 
-run { some disj S,T:LTS, 
-		R: S.nodos->T.nodos, 
-		Strans, Ttrans:Nodo->Etiqueta->Nodo |
+run { some disj S,T:LTS,R:S.nodos->T.nodos|
 	//Simulacion[S,T,R]
 	//Bisimulacion[S,T,R]
 	SimulacionDebil[S,T,R] and not Simulacion[S,T,R]
-	and Strans = S.transiciones
-	and Ttrans = T.transiciones
-	and no T.nodos & S.nodos
 	and #T.nodos = 4
 	and #T.etiquetas = 2
 	and #T.transiciones = 5
