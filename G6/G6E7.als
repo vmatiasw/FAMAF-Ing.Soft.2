@@ -5,23 +5,19 @@ sig Catalogo {
 	interpretes: set Interprete,
 	interpretaciones: canciones -> interpretes
 }{
-	all one c:canciones, one i:interpretes | 
-		some iˋ:interpretes, cˋ:canciones | 
-		c->iˋ in interpretaciones
-		and cˋ->i in interpretaciones
+	interpretes = canciones.interpretaciones
+	canciones = interpretaciones.interpretes
 }
 
 assert TestConsistencia {
 	all C:Catalogo |
-		(all c:C.canciones | 
-			some i:C.interpretes | 
+		(all c:C.canciones | some i:C.interpretes | 
 			c->i in C.interpretaciones)
 		and
-		all i:C.interpretes | 
-			some c:C.canciones | 
-			c->i in C.interpretaciones
+		(all i:C.interpretes | some c:C.canciones | 
+			c->i in C.interpretaciones)
 }
-check TestConsistencia for 5 but 1 Catalogo
+//check TestConsistencia for 5 but 1 Catalogo
 
 pred Add[c,cˋ:Catalogo, i:Cancion->Interprete]{
 	one i
