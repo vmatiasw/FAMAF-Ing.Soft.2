@@ -57,4 +57,4 @@ fact Transicion {
 	and 	(Bote in D&Oˋ implies Mover[D,Dˋ,O,Oˋ])
 }
 
-run {} for 30
+run {} for 18
