@@ -33,6 +33,9 @@ assert Refinamiento {
 	(some aB and some aBˋ) -- para que de el resultado
 	implies
 		(Ref/add[B,Bˋ,N,T] implies Abs/add[aB,aBˋ,aN,aT])
+	//and ({	aA:Abs/Addr | 
+	//		one A:Ref/lookup[B,N] | 
+	//		aA = alphaAddr[A]		} = Abs/lookup[aB,aN])
 	//and	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
 }
 
@@ -63,4 +66,16 @@ assert RefinamientoDel {
 	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
 }
 
-check RefinamientoDel for 2 -- No refina a Del
+//check RefinamientoDel for 2 -- No refina a Del
+
+assert RefinamientoLookup {
+	all B:Ref/Book, N:Ref/Name|
+	let	aB = alphaBook[B], aN = alphaName[N] |
+	(some aB ) -- para que de el resultado
+	implies ({	aA:Abs/Addr | 
+			one A:Ref/lookup[B,N] | 
+			aA = alphaAddr[A]		} = Abs/lookup[aB,aN])
+	//and	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
+}
+
+check RefinamientoLookup for 3 but 1 Ref/Book, 1 Abs/Book -- No refina lookup
