@@ -7,7 +7,7 @@ one sig AddrMap {
 	Abs/Addr = Ref/Addr.map
 	Ref/Addr = map.Abs/Addr
 }
-fact ShowAddrMap {some A:AddrMap.map | some A}
+fun ShowAddrMap[]:Ref/Addr->Abs/Addr{AddrMap.map}
 
 one sig NameMap {
 	map: Ref/Alias one -> one Abs/Name
@@ -15,7 +15,7 @@ one sig NameMap {
 	Abs/Name = Ref/Alias.map
 	Ref/Alias = map.Abs/Name
 }
-fact ShowNameMap {some N:NameMap.map | some N}
+fun ShowNameMap[]:Ref/Alias->Abs/Name{NameMap.map}
 
 fun alphaAddr[T:Ref/Target]:Abs/Addr{AddrMap.map[T]}
 
@@ -53,7 +53,7 @@ pred TestAdd[	B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
 //run TestAdd for 4 but 2 Abs/Book, 2 Ref/Book
 
 assert RefinamientoDel {
-	all B,Bˋ:Ref/Book, A:Ref/Alias, T:Ref/Target|
+	all B,Bˋ:Ref/Book, A:Ref/Alias, T:Ref/Addr|
 	let	aB = alphaBook[B], aBˋ= alphaBook[Bˋ],
 		aA = alphaName[A]|
 	(some aB and some aBˋ -- para q la f de el resultado
@@ -63,7 +63,7 @@ assert RefinamientoDel {
 	(Ref/del[B,Bˋ,A,T] implies Abs/del[aB,aBˋ,aA])
 }
 
-//check RefinamientoDel for 2 -- No refina a Del
+check RefinamientoDel for 3 but 2 Abs/Book, 2 Ref/Book -- No refina a Del
 
 
 assert RefinamientoLookup {
