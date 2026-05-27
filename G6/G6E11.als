@@ -56,7 +56,9 @@ assert RefinamientoDel {
 	all B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target|
 	let	aB = alphaBook[B], aBˋ= alphaBook[Bˋ],
 		aN = alphaName[N]|
-	(some aB and some aBˋ) -- para que de el resultado
+	(some aB and some aBˋ -- para q la f de el resultado
+		and (one bˋ:Abs/Book| Ref/del[B,Bˋ,N,T]
+			implies Abs/del[aB,bˋ,aN])) -- para ver bˋ
 	implies
 	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
 }
