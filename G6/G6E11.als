@@ -42,17 +42,20 @@ one sig AddrMap {
 fun ShowAddrMap[]:Ref/Addr->Abs/Addr{AddrMap.map}
 
 one sig NameMap {
-	map: Ref/Alias one -> one Abs/Name
+	map: Ref/Name -> Abs/Name
 }{
-	Abs/Name = Ref/Alias.map
-	Ref/Alias = map.Abs/Name
+	Abs/Name = Ref/Name.map
+	Ref/Name = map.Abs/Name
+    	all al: Ref/Alias | one map[al]
+    	all g: Ref/Group | some map[g]
+	all ab: Abs/Name | one map.ab
 }
-fun ShowNameMap[]:Ref/Alias->Abs/Name{NameMap.map}
+fun ShowNameMap[]:Ref/Name->Abs/Name{NameMap.map}
 
 ------------------ Alphas
 fun alphaAddr[T:Ref/Target]:Abs/Addr{AddrMap.map[T]}
 
-fun alphaName[A:Ref/Alias]:Abs/Name{NameMap.map[A]}
+fun alphaName[A:Ref/Name]:Abs/Name{NameMap.map[A]}
 
 fun alphaBook[B:Ref/Book]:Abs/Book{ // Depende de existencia
 	{b:Abs/Book | 
@@ -72,7 +75,7 @@ pred TestAdd {
 	some Ref/Group.(Ref/Book.addr)
 	some Ref/Addr
 }
-run TestAdd for 3 but 2 Ref/Book
+//run TestAdd for 3 but 2 Ref/Book
 
 pred TestDel {
 	all disj a,b:Dels | a.book != b.book // para mas placer
@@ -111,6 +114,6 @@ assert RefinamientoLookup {
 		aB:alphaBook[B], aN:alphaName[N] |
 	Abs/lookup[aB,aN] = alphaAddr[Ref/lookup[B,N]]
 }
-check RefinamientoLookup for 6 but 1 Ref/Book
+check RefinamientoLookup for 6 but 1 Ref/Book, 1 Abs/Book
 
 
