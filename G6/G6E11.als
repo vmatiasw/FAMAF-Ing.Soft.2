@@ -60,21 +60,24 @@ fun alphaBook[B:Ref/Book]:Abs/Book{ // Depende de existencia
 }
 
 ------------------ Tests para ver comportamiento
-pred TestAdd {
-	all disj a,b:Adds | a.book != b.book // para mas placer
-	
-	some B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+pred TestAdd {	
+	some B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
 		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
 	Ref/add[B,Bˋ,N,T] 
 	and Adds/first[].book=aB
 	and Adds/first[].toAdd=aBˋ.addr-aB.addr
+
+	 // para mas placer
+	some disj a,b:Adds | a.book != b.book
+	some Ref/Group.(Ref/Book.addr)
+	some Ref/Addr
 }
-//run TestAdd for 3 but 2 Ref/Book
+run TestAdd for 3 but 2 Ref/Book
 
 pred TestDel {
 	all disj a,b:Dels | a.book != b.book // para mas placer
 	
-	some B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+	some B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
 		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
 	Ref/del[B,Bˋ,N,T] 
 	and Dels/first[].book=aB
@@ -84,7 +87,7 @@ pred TestDel {
 
 ------------------ Chequeamos refinamiento
 assert RefinamientoAdd {
-	all 	B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+	all 	B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
 		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
 	Ref/add[B,Bˋ,N,T] 
 	and Adds/first[].book=aB
@@ -94,7 +97,7 @@ assert RefinamientoAdd {
 //check RefinamientoAdd for 5 but 2 Ref/Book
 
 assert RefinamientoDel {
-	all 	B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+	all 	B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
 		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
 	Ref/del[B,Bˋ,N,T] 
 	and Dels/first[].book=aB
@@ -104,7 +107,7 @@ assert RefinamientoDel {
 //check RefinamientoDel for 5 but 2 Ref/Book
 
 assert RefinamientoLookup {
-	all 	B:Ref/Book, N:Ref/Alias,
+	all 	B:Ref/Book, N:Ref/Name,
 		aB:alphaBook[B], aN:alphaName[N] |
 	Abs/lookup[aB,aN] = alphaAddr[Ref/lookup[B,N]]
 }
