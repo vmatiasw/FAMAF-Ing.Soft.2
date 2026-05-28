@@ -1,81 +1,113 @@
 open book/chapter2/addressBook1h as Abs -- Modelo Abstracto
 open book/chapter2/addressBook2e as Ref -- Modelo Concreto
+open util/ordering[Adds] as Adds
+open util/ordering[Dels] as Dels
 
+------------------ Dels
+sig Dels{
+	toDel: set Abs/Name,
+	book: one Abs/Book
+}
+fact DelsFinal {no Dels/last[].toDel}
+fact DelsTransicion {
+	all e:Dels, eˋ:next[e] |
+	(some n:e.toDel|
+		Abs/del[e.book,eˋ.book,n]
+		and eˋ.toDel=e.toDel - n)
+	or (eˋ.toDel = e.toDel and eˋ.book = e.book)
+}
+
+------------------ Adds
+sig Adds{
+	toAdd: set Abs/Name -> Abs/Addr,
+	book: one Abs/Book
+}
+fact AddsFinal {no Adds/last[].toAdd}
+fact AddsTransicion {
+	all e:Adds, eˋ:next[e] |
+	(some n:Abs/Name, a:Abs/Addr|
+		n->a in e.toAdd
+		and Abs/add[e.book,eˋ.book,n,a]
+		and eˋ.toAdd=e.toAdd - n->a)
+	or (eˋ.toAdd = e.toAdd and eˋ.book = e.book)
+}
+
+------------------ Mapeos
 one sig AddrMap {
 	map: Ref/Addr one -> one Abs/Addr
 }{
 	Abs/Addr = Ref/Addr.map
 	Ref/Addr = map.Abs/Addr
 }
-fact ShowAddrMap {some A:AddrMap.map | some A}
+fun ShowAddrMap[]:Ref/Addr->Abs/Addr{AddrMap.map}
 
 one sig NameMap {
-	map: Ref/Name one -> one Abs/Name
+	map: Ref/Alias one -> one Abs/Name
 }{
-	Abs/Name = Ref/Name.map
-	Ref/Name = map.Abs/Name
+	Abs/Name = Ref/Alias.map
+	Ref/Alias = map.Abs/Name
 }
-fact ShowNameMap {some N:NameMap.map | some N}
+fun ShowNameMap[]:Ref/Alias->Abs/Name{NameMap.map}
 
+------------------ Alphas
 fun alphaAddr[T:Ref/Target]:Abs/Addr{AddrMap.map[T]}
 
-fun alphaName[N:Ref/Name]:Abs/Name{NameMap.map[N]}
+fun alphaName[A:Ref/Alias]:Abs/Name{NameMap.map[A]}
 
 fun alphaBook[B:Ref/Book]:Abs/Book{ // Depende de existencia
 	{b:Abs/Book | 
-	b.addr = (~(NameMap.map)).(B.addr).(AddrMap.map) }
+	b.addr = (~(NameMap.map)).(^(B.addr)).(AddrMap.map)}
 }
 
-assert Refinamiento {
-	all B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target|
-	let	aB = alphaBook[B], aBˋ= alphaBook[Bˋ],
-		aN = alphaName[N], aT = alphaAddr[T] |
-	(some aB and some aBˋ) -- para que de el resultado
-	implies
-		(Ref/add[B,Bˋ,N,T] implies Abs/add[aB,aBˋ,aN,aT])
-	//and ({	aA:Abs/Addr | 
-	//		one A:Ref/lookup[B,N] | 
-	//		aA = alphaAddr[A]		} = Abs/lookup[aB,aN])
-	//and	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
+------------------ Tests para ver comportamiento
+pred TestAdd {
+	all disj a,b:Adds | a.book != b.book // para mas placer
+	
+	some B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
+	Ref/add[B,Bˋ,N,T] 
+	and Adds/first[].book=aB
+	and Adds/first[].toAdd=aBˋ.addr-aB.addr
 }
+//run TestAdd for 3 but 2 Ref/Book
 
-//check Refinamiento for 6 -- Anda solo refinando a Add
-
-pred TestAdd[	B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target,
-			b,bˋ:Abs/Book, n:Abs/Name, a:Abs/Addr]{
-	let	aB = alphaBook[B], aBˋ= alphaBook[Bˋ],
-		aN = alphaName[N], aT = alphaAddr[T] |
-	//#B.addr = 2 and #b.addr = 2 and #Bˋ.addr = 3 and 
-	Ref/add[B,Bˋ,N,T] and Abs/add[aB,aBˋ,aN,aT]
-	and (	aB.addr=b.addr 
-		and	aBˋ.addr=bˋ.addr 
-		and	aN=n 
-		and 	aT=a)
+pred TestDel {
+	all disj a,b:Dels | a.book != b.book // para mas placer
+	
+	some B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
+	Ref/del[B,Bˋ,N,T] 
+	and Dels/first[].book=aB
+	and Dels/first[].toDel=(aB.addr-aBˋ.addr).Abs/Addr
 }
+//run TestDel for 3 but 2 Ref/Book
 
-//run TestAdd for 4 but 2 Abs/Book, 2 Ref/Book
+------------------ Chequeamos refinamiento
+assert RefinamientoAdd {
+	all 	B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
+	Ref/add[B,Bˋ,N,T] 
+	and Adds/first[].book=aB
+	and Adds/first[].toAdd=aBˋ.addr-aB.addr
+	implies Adds/last[].book.addr=aBˋ.addr
+}
+//check RefinamientoAdd for 5 but 2 Ref/Book
 
 assert RefinamientoDel {
-	all B,Bˋ:Ref/Book, N:Ref/Name, T:Ref/Target|
-	let	aB = alphaBook[B], aBˋ= alphaBook[Bˋ],
-		aN = alphaName[N]|
-	(some aB and some aBˋ -- para q la f de el resultado
-		and (one bˋ:Abs/Book| Ref/del[B,Bˋ,N,T]
-			implies Abs/del[aB,bˋ,aN])) -- para ver bˋ
-	implies
-	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
+	all 	B,Bˋ:Ref/Book, N:Ref/Alias, T:Ref/Target,
+		aB:alphaBook[B], aBˋ:alphaBook[Bˋ]|
+	Ref/del[B,Bˋ,N,T] 
+	and Dels/first[].book=aB
+	and Dels/first[].toDel=(aB.addr-aBˋ.addr).Abs/Addr
+	implies Dels/last[].book.addr=aBˋ.addr
 }
-
-//check RefinamientoDel for 2 -- No refina a Del
+//check RefinamientoDel for 5 but 2 Ref/Book
 
 assert RefinamientoLookup {
-	all B:Ref/Book, N:Ref/Name|
-	let	aB = alphaBook[B], aN = alphaName[N] |
-	(some aB ) -- para que de el resultado
-	implies ({	aA:Abs/Addr | 
-			one A:Ref/lookup[B,N] | 
-			aA = alphaAddr[A]		} = Abs/lookup[aB,aN])
-	//and	(Ref/del[B,Bˋ,N,T] implies Abs/del[aB,aBˋ,aN])
+	all 	B:Ref/Book, N:Ref/Alias,
+		aB:alphaBook[B], aN:alphaName[N] |
+	Abs/lookup[aB,aN] = alphaAddr[Ref/lookup[B,N]]
 }
+check RefinamientoLookup for 6 but 1 Ref/Book
 
-check RefinamientoLookup for 3 but 1 Ref/Book, 1 Abs/Book -- No refina lookup
+
