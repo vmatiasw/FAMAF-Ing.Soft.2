@@ -72,10 +72,11 @@ pred TestAdd {
 
 	 // para mas placer
 	some disj a,b:Adds | a.book != b.book
-	some Ref/Group.(Ref/Book.addr)
+	//some Ref/Group.(Ref/Book.addr)
+	one g:Ref/Group | #(NameMap.map[g]) = 2
 	some Ref/Addr
 }
-//run TestAdd for 3 but 2 Ref/Book
+run TestAdd for 3 but 2 Ref/Book
 
 pred TestDel {
 	all disj a,b:Dels | a.book != b.book // para mas placer
